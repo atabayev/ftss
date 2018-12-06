@@ -1,0 +1,19 @@
+<html>
+    <head>
+    </head>
+    <body>
+        <h1> Список переводчиков </h1>
+           <table border="1">
+            {% for translator in all_translators %}
+            <tr>
+                <td>{{ translator.t_id }}</td>
+                <td>{{ translator.surname }}</td>
+                <td>{{ translator.name }}</td>
+                <td>{{ translator.phone }}</td>
+                <td>{{ translator.email }}</td>
+                <td><a href="{ % url 'registration:delete' translator.id % }">Delete</a></td>
+            </tr>
+            {% endfor  %}
+        </table>
+    </body>
+</html>

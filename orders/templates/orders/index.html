@@ -1,0 +1,28 @@
+<html>
+    <head>
+    </head>
+    <body>
+        <h1> Список товаров </h1>
+        <p><a href="{ % url 'orders:new' % }">Создать новый</a></p>
+        <table border="1">
+            {% for order in all_orders %}
+            <tr>
+                <td>{{ order.o_id }}</td>
+                <td>{{ order.lang }}</td>
+                <td>{{ order.pages }}</td>
+                <td>{{ order.date }}</td>
+                <td>{{ order.price }}</td>
+                <td>{{ order.direction }}</td>
+                <td>{{ order.urgency }}</td>
+                <td>{{ order.customer }}</td>
+                <td>{{ order.translated }}</td>
+                <td>{{ order.status }}</td>
+                <td>{{ order.file }}</td>
+               <td><a href="{ % url 'registration:edit' client.id % }">Редактировать</a></td>
+                 <td><a href="{ % url 'orders:delete' order.id % }">Удалить</a></td>
+            </tr>
+            {% endfor  %}
+        </table>
+    </body>
+</html>
+
