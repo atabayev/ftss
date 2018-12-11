@@ -7,7 +7,7 @@ class Manager(models.Model):
     name = models.CharField(max_length=50, default='')
     surname = models.CharField(max_length=50, default='')
     email = models.CharField(max_length=100, default='')
-    phone = models.CharField(max_length=12, default='')
+    phone = models.CharField(max_length=15, default='')
     reg_date = models.CharField(max_length=20, default='')
 
 

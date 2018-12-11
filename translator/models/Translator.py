@@ -7,7 +7,7 @@ class Translator(models.Model):
     name = models.CharField(max_length=50)
     surname = models.CharField(max_length=100)
     email = models.CharField(max_length=100)
-    phone = models.CharField(max_length=12)
+    phone = models.CharField(max_length=15)
     reg_date = models.CharField(max_length=20)
     busy = models.CharField(max_length=5, default='0')
     direction = models.CharField(max_length=50, default='')

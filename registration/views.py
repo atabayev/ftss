@@ -40,7 +40,11 @@ def registration_new_user(request):
         client.name = request.POST['name']
         client.surname = request.POST['surname']
         client.email = request.POST['email']
-        client.phone = request.POST['phone']
+        phone_number = request.POST['phone']
+        if phone_number[0] == "+":
+            client.phone = phone_number[1:]
+        else:
+            client.phone = phone_number
         tmp_id = '{0}{1}{2}'.format(client.surname[0], client.name[0], client.phone)
         client.c_id = converter_ru_to_lt(tmp_id)
         client.reg_date = datetime.date.today().strftime("%d.%m.%Y")

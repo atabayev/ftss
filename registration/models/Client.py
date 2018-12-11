@@ -6,7 +6,7 @@ class Client(models.Model):
     name = models.CharField(max_length=50)
     surname = models.CharField(max_length=100)
     email = models.CharField(max_length=100)
-    phone = models.CharField(max_length=10)
+    phone = models.CharField(max_length=15)
     reg_date = models.CharField(max_length=20)
     rating = models.CharField(max_length=20, default='0')
     refused_orders = models.CharField(max_length=20, default='0')
@@ -16,7 +16,7 @@ class Client(models.Model):
 
 class ClientAuth(models.Model):
     c_id = models.CharField(max_length=150)
-    phone_number = models.CharField(max_length=10)
+    phone_number = models.CharField(max_length=15)
     token = models.CharField(max_length=50)
     fcm_token = models.CharField(max_length=200, default='0')
 
