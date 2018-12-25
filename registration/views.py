@@ -37,7 +37,7 @@ def registration_new_user(request):
         ph = request.POST['phone']
         phone_number = ph[len(ph)-10:]
         # if phone_number[0] == "+":
-        #     client.phone = phone_number[1:]
+        #     client.phone = phone_number[1:]git commi
         # else:
         #     client.phone = phone_number
         if Client.objects.filter(phone=phone_number).exists():

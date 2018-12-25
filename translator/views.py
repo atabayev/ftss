@@ -155,8 +155,7 @@ def get_my_orders(request):
     except Translator.DoesNotExist:
         return JsonResponse({"response": "denied"})
     try:
-        orders = translator.order_set.filter(status=4)
-        # orders = translator.orders.all().filter(orders__status='2')
+        orders = translator.order_set.filter(status=4).filter(status=5)
     except Translator.DoesNotExist:
         return JsonResponse({"response": "no_orders"})
     if len(orders) == 0:
@@ -171,8 +170,9 @@ def get_my_orders(request):
         order_direction = translators_orders.direction
         order_pages = translators_orders.pages
         order_price = translators_orders.price
+        order_status = translators_orders.status
         record = {"id": order_id, "deadline": order_date_end, "language": order_lang,
-                  "direction": order_direction, "pageCount": order_pages, "price": order_price}
+                  "direction": order_direction, "pageCount": order_pages, "price": order_price, "status": order_status}
         orders_records.append(record)
     orders_dict["orders"] = orders_records
     return JsonResponse(orders_dict)
@@ -202,7 +202,7 @@ def take_an_order(request):
     client_fcm_token = [ClientAuth.objects.get(c_id=client.c_id).fcm_token]
     client.order_status = "4"
     client.save()
-    send_push_notification("2", "2", client_fcm_token)
+    send_push_notification("Результат", "Найден подходящий переводчик", client_fcm_token)
     return JsonResponse({"response": "tao_ok", "data": ""})
 
 

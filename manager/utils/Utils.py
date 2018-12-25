@@ -20,6 +20,6 @@ def send_orders_archive():
 
 
 if __name__ == '__main__':
-    send_push_notification("Привет",
-                           "Это из Pycharm",
-                           'cQSt72wQL1U:APA91bGkjTfHrUf8Qn9FaxyaQ4yml1OjsJlEtpf4qeF4qMee2yhItQFQrOA03A1UsCyFm_Qo37vlI1f-zFH2R1u1CIMdQwOVk2oisZ3OuSyrd_q-MT5yPbmoWXR6TboaHz19jlorIAkd')
+    send_push_notification("Новый заказ!",
+                           "Поступил новый заказ",
+                           ['c7XeC_UEpBU:APA91bEmR1-MIzm8hPMz1W_6jPZobhG5AAMJihGDaHfX9DMCoeYdcU3FvkrGPQJ859S5-bY2E3Oahqtf3tgwx9O5XIEDLWfKMY4edYiqnsysW0E0hV27NUUX8I0pAL9lmW0jra9yN7XU'])
