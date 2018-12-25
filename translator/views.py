@@ -155,7 +155,8 @@ def get_my_orders(request):
     except Translator.DoesNotExist:
         return JsonResponse({"response": "denied"})
     try:
-        orders = translator.order_set.filter(status=4).filter(status=5)
+        orders = translator.order_set.filter(status__in=[4, 5])
+        # i_end_int__gte = x, i_begin_int__lte = x
     except Translator.DoesNotExist:
         return JsonResponse({"response": "no_orders"})
     if len(orders) == 0:
