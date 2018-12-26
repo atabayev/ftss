@@ -11,7 +11,7 @@ from orders.models import Order, TranslateResult
 from orders.utils.Utils import create_archive_file
 from registration.models.Client import Client, ClientAuth
 from registration.utils.Utils import converter_ru_to_lt
-from translator.models.Translator import Translator
+from translator.models.Translator import Translator, TranslatorAuth
 from translator.utils.Utils import generate_token, send_arch_to_email
 from .models.Manager import Manager, ManagerAuth
 from .utils.Utils import send_push_notification
@@ -249,8 +249,14 @@ def finish_order(request):
     """.format(order.o_id)
     if send_arch_to_email(client.email, "Ваш заказ № " + order.o_id + " готов", msg_text, arch_name):
         order.status = "6"
+        translator_id = order.translators
         order.save()
         fcm_token = [ClientAuth.objects.get(c_id=client.c_id).fcm_token]
+        send_push_notification("Заказ завершён", "Результат перевода отправлен Вам на почту", fcm_token)
+        try:
+            fcm_token = TranslatorAuth.objects.get(t_id=translator_id).fcm_token
+        except TranslatorAuth.DoesNotExist:
+            fcm_token = ""
         send_push_notification("Заказ завершён", "Результат перевода отправлен Вам на почту", fcm_token)
         return JsonResponse({"response": "ok", "id": order.o_id})
     else:
