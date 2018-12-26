@@ -54,7 +54,7 @@ def add_translator_to_order(request):
     client.order_status = "2"
     client.save()
     customers_fcm = [ClientAuth.objects.get(c_id=order.customer_id).fcm_token]
-    send_push_notification("Обработан", "Ваш заказ " + order.o_id + " обработан", customers_fcm)
+    send_push_notification("Заказ обработан", "Ваш заказ " + order.o_id + " обработан", customers_fcm)
     return JsonResponse({"response": "add_ok", "translators": unknown_translator})
 
 
@@ -251,7 +251,7 @@ def finish_order(request):
         order.status = "6"
         order.save()
         fcm_token = [ClientAuth.objects.get(c_id=client.c_id).fcm_token]
-        send_push_notification("Заказ завершен", "Результат перевода отправлен Вам на почту", fcm_token)
+        send_push_notification("Заказ завершён", "Результат перевода отправлен Вам на почту", fcm_token)
         return JsonResponse({"response": "ok", "id": order.o_id})
     else:
         return JsonResponse({"response": "error_se", "id": order.o_id})

@@ -203,7 +203,7 @@ def take_an_order(request):
     client_fcm_token = [ClientAuth.objects.get(c_id=client.c_id).fcm_token]
     client.order_status = "4"
     client.save()
-    send_push_notification("Результат", "Найден подходящий переводчик", client_fcm_token)
+    send_push_notification("Найден переводчик", "Теперь Ваш заказ в процессе перевода", client_fcm_token)
     return JsonResponse({"response": "tao_ok", "data": ""})
 
 
