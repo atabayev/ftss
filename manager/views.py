@@ -249,15 +249,13 @@ def finish_order(request):
     """.format(order.o_id)
     if send_arch_to_email(client.email, "Ваш заказ № " + order.o_id + " готов", msg_text, arch_name):
         order.status = "6"
-        translator_id = order.translators
+        translators = order.translators.all()
         order.save()
         fcm_token = [ClientAuth.objects.get(c_id=client.c_id).fcm_token]
-        send_push_notification("Заказ завершён", "Результат перевода отправлен Вам на почту", fcm_token)
-        try:
-            fcm_token = TranslatorAuth.objects.get(t_id=translator_id).fcm_token
-        except TranslatorAuth.DoesNotExist:
-            fcm_token = ""
-        send_push_notification("Заказ завершён", "Результат перевода отправлен Вам на почту", fcm_token)
+        send_push_notification("Заказ завершен", "Результат перевода отправлен Вам на почту", fcm_token)                    
+        for translator in translators:
+            fcm_token.append(translator.t_id)
+        send_push_notification("Заказ завершен", "Результат перевода отправлен Вам на почту", fcm_token)
         return JsonResponse({"response": "ok", "id": order.o_id})
     else:
         return JsonResponse({"response": "error_se", "id": order.o_id})
