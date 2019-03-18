@@ -232,7 +232,8 @@ def do_you_translate_my_order(request):
 
 
 def finish_order(request):
-    if "cid" not in request.POST or "token" not in request.POST or "oid" not in request.POST:
+    if "cid" not in request.POST or "token" not in request.POST or "oid" not in request.POST \
+            or "rating" not in request.POST:
         return JsonResponse({"response": "error_f"})
     try:
         if ClientAuth.objects.get(c_id=request.POST["cid"]).token == request.POST["token"]:
@@ -244,6 +245,7 @@ def finish_order(request):
     except Order.DoesNotExist:
         return JsonResponse({"response": "error_no_order"})
     order.status = "7"
+    order.translate_rating = request.POST['rating']
     order.save()
     return JsonResponse({"response": "ok"})
 

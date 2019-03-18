@@ -18,13 +18,16 @@ def index(request):
 
 def new(request):
     if "name" not in request.POST or "surname" not in request.POST or "email" not in request.POST \
-            or "phone" not in request.POST or "direction" not in request.POST or "token" not in request.POST \
-            or "username" not in request.POST or "password" not in request.POST:
+            or "phone" not in request.POST or "direction" not in request.POST \
+            or "username" not in request.POST or "password" not in request.POST\
+            or "mid" not in request.POST or "token" not in request.POST:
         return JsonResponse({"response": "f_error", "id": ""})
     try:
-        ManagerAuth.objects.get(token=request.POST["token"])
+        manager = ManagerAuth.objects.get(m_id=request.POST["mid"])
     except ManagerAuth.DoesNotExist:
-        return JsonResponse({"response": "t_error", "id": ""})
+        return JsonResponse({"response": "denied"})
+    if manager.token != request.POST['token']:
+        return JsonResponse({"response": "denied"})
     if Translator.objects.filter(phone=request.POST['phone']).exists():
         return JsonResponse({"response": "ex_error", "id": ""})
     translator = Translator()
@@ -236,4 +239,3 @@ def save_fcm_token(request):
     translator_auth.fcm_token = request.POST["fcm_token"]
     translator_auth.save()
     return JsonResponse({"response": "ok"})
-

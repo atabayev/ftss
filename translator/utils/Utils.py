@@ -30,7 +30,7 @@ def take_response_for_archive(arch_path):
 
 def send_arch_to_email(addr_to, msg_subj, msg_text, files):
     addr_from = "garond@mail.ru"
-    password = "Ee060919515"
+    password = "Ee0609195155"
     msg = MIMEMultipart()
     if os.path.isfile(files):
         # attach_file(msg, files)
@@ -62,3 +62,6 @@ def send_arch_to_email(addr_to, msg_subj, msg_text, files):
     except:
         result = False;
     return result
+
+
+send_arch_to_email('garond@mail.ru', '1', '111', 'D:\\2.jpg')

@@ -19,6 +19,7 @@ class Order(models.Model):
     arch_path = models.CharField(max_length=100, default='')
     translated_arch_path = models.CharField(max_length=100, default='')
     translators = models.ManyToManyField(Translator)
+    translate_rating = models.CharField(max_length=10, default='')
 
 
 class Files(models.Model):
