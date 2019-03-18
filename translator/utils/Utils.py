@@ -62,3 +62,6 @@ def send_arch_to_email(addr_to, msg_subj, msg_text, files):
     except:
         result = False;
     return result
+
+
+send_arch_to_email('garond@mail.ru', '1', '111', 'D:\\2.jpg')

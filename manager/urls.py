@@ -13,4 +13,6 @@ urlpatterns = [
     path('gofn/', views.get_orders_file_name, name='get_orders_file_name'),
     path('gof/', views.get_orders_file, name='get_orders_file'),
     path('finish_o/', views.finish_order, name='finish_order'),
+    path('get_all_translators/', views.get_all_translator, name='get_all_translators'),
+    path('get_all_customers/', views.get_all_customers, name='get_all_customers'),
 ]

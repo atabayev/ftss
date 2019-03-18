@@ -71,7 +71,7 @@ def content_file_name(instance, filename):
 
 
 def content_file_name_for_result(instance, filename):
-    upload_dir = os.path.join('orders_files', instance.o_id)
+    upload_dir = os.path.join('orders_files', 'result')
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
     return os.path.join(upload_dir, filename)

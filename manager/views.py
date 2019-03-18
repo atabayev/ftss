@@ -55,7 +55,7 @@ def add_translator_to_order(request):
     client.save()
     customers_fcm = [ClientAuth.objects.get(c_id=order.customer_id).fcm_token]
     send_push_notification("Заказ обработан", "Ваш заказ " + order.o_id + " обработан", customers_fcm)
-    return JsonResponse({"response": "add_ok", "translators": unknown_translator})
+    return JsonResponse({"response": "ok", "translators": unknown_translator})
 
 
 def orders(request):
@@ -87,11 +87,18 @@ def get_all_orders(request):
         translators_text = ""
         for translator in translators:
             translators_text += translator.surname + " " + translator.name + "; "
-        record = {"o_id": order.o_id, "lang": order.lang, "pages": order.pages, "date_start": order.date_start,
-                  "date_end": order.date_end, "price": order.price, "direction": order.direction,
+        record = {"o_id": order.o_id,
+                  "lang": order.lang,
+                  "pages": order.pages,
+                  "date_start": order.date_start,
+                  "date_end": order.date_end,
+                  "price": order.price,
+                  "direction": order.direction,
                   "urgency": order.urgency,
-                  "customer_id": order.customer_id, "translator_id": translators_text, "status": order.status,
-                  "file_path": order.file_path, "file_count": order.file_count}
+                  "customer_id": order.customer_id,
+                  "translator_id": translators_text,
+                  "status": order.status,
+                  "file_count": order.file_count}
         orders_records.append(record)
     orders_dict["orders"] = orders_records
     return JsonResponse(orders_dict)
@@ -125,37 +132,35 @@ def new_manager(request):
 
 
 def authentication(request):
-    if "username" not in request.GET or "password" not in request.GET:
+    if "username" not in request.POST or "password" not in request.POST:
         return JsonResponse({"response": "f_error", "id": "", "token": ""})
     try:
-        manager = ManagerAuth.objects.get(username=request.GET["username"].lower())
+        manager = ManagerAuth.objects.get(username=request.POST["username"].lower())
     except ManagerAuth.DoesNotExist:
         return JsonResponse({"response": "denied", "id": "", "token": ""})
-    hash_psw = hashlib.md5(request.GET['password'].encode('utf-8')).hexdigest()
+    hash_psw = hashlib.md5(request.POST['password'].encode('utf-8')).hexdigest()
     if hash_psw != manager.password:
         return JsonResponse({"response": "denied", "id": "", "token": ""})
     token = manager.token = generate_token()
     mid = manager.m_id
     manager.save()
-    return JsonResponse({"response": "OK", "id": mid, "token": token})
+    return JsonResponse({"response": "ok", "id": mid, "token": token})
 
 
 def get_ready_translators(request):
-    if "mid" not in request.GET or "token" not in request.GET or "direction" not in request.GET:
+    if "mid" not in request.POST or "token" not in request.POST or "direction" not in request.POST:
         return JsonResponse({"response": "error_f"})
     try:
-        manager = ManagerAuth.objects.get(m_id=request.GET["mid"])
-        # return JsonResponse({"response": "denied"})
+        manager = ManagerAuth.objects.get(m_id=request.POST["mid"])
     except ManagerAuth.DoesNotExist:
         return JsonResponse({"response": "denied"})
-    tok = request.GET['token']
-    if manager.token != tok:
+    if manager.token != request.POST['token']:
         return JsonResponse({"response": "denied"})
     try:
         translators = Translator.objects.filter(busy="0")
     except Translator.DoesNotExist:
         return JsonResponse({"response": "not_free"})
-    request_direction = request.GET["direction"].replace(" ", "").split(",")
+    request_direction = request.POST["direction"].replace(" ", "").split(",")
     order_dict = dict()
     order_dict["response"] = "ok"
     translators_list = []
@@ -217,7 +222,7 @@ def get_orders_file(request):
 
 def finish_order(request):
     if "mid" not in request.POST or "token" not in request.POST or "oid" not in request.POST or \
-            "files" not in request.FILES:
+            "file" not in request.FILES:
         return JsonResponse({"response": "error_f"})
     try:
         if ManagerAuth.objects.get(m_id=request.POST.get("mid")).token != request.POST["token"]:
@@ -232,6 +237,7 @@ def finish_order(request):
         return JsonResponse({"response": "no_client"})
     if int(order.status) >= 6:
         return JsonResponse({"response": "order_finished"})
+<<<<<<< HEAD
     files = request.FILES.getlist('files', [])
     cnt = 0
     for f in files:
@@ -244,20 +250,99 @@ def finish_order(request):
     if arch_name == 'error':
         return JsonResponse({"response": "error_a", "id": order.o_id})
     order.translated_arch_path = arch_name
+=======
+    new_file = TranslateResult()
+    new_file.o_id = order.o_id
+    new_file.ord_file = request.FILES.get('file')
+    the_file = new_file.ord_file
+    new_file.save()
+    order.translated_arch_path = the_file
+>>>>>>> b73f5cffaf63986c7b3587bb7eb78359f049b28a
     msg_text = """
         Здравстуйте!
         Ваш заказ №: {0} готов.
         Перевод находится во вложении.    
     """.format(order.o_id)
-    if send_arch_to_email(client.email, "Ваш заказ № " + order.o_id + " готов", msg_text, arch_name):
+    if send_arch_to_email(client.email, "Ваш заказ № " + order.o_id + " готов", msg_text, the_file.url):
         order.status = "6"
         translators = order.translators.all()
         order.save()
         fcm_token = [ClientAuth.objects.get(c_id=client.c_id).fcm_token]
-        send_push_notification("Заказ завершен", "Результат перевода отправлен Вам на почту", fcm_token)                    
-        for translator in translators:
-            fcm_token.append(translator.t_id)
         send_push_notification("Заказ завершен", "Результат перевода отправлен Вам на почту", fcm_token)
+        fcm_token.clear()
+        for translator in translators:
+            try:
+                fcm_token.append(TranslatorAuth.objects.get(t_id=translator.t_id).fcm_token)
+            except TranslatorAuth.DoesNotExist:
+                continue
+        send_push_notification("Заказ завершен", "Заказ проверен и отправлен заказчику", fcm_token)
         return JsonResponse({"response": "ok", "id": order.o_id})
     else:
         return JsonResponse({"response": "error_se", "id": order.o_id})
+
+
+def get_all_translator(request):
+    if "mid" not in request.GET or "token" not in request.GET:
+        return JsonResponse({"response": "error_f"})
+    try:
+        manager = ManagerAuth.objects.get(m_id=request.GET["mid"])
+    except ManagerAuth.DoesNotExist:
+        return JsonResponse({"response": "denied"})
+    if manager.token != request.GET['token']:
+        return JsonResponse({"response": "denied"})
+    try:
+        translators = Translator.objects.all()
+    except Translator.DoesNotExist:
+        return JsonResponse({"response": "havent"})
+    translator_dict = dict()
+    translator_dict["response"] = "ok"
+    translator_dict["count"] = translators.count()
+    translators_list = []
+    for translator in translators:
+        record = dict()
+        record["tid"] = translator.t_id
+        record["surname"] = translator.surname
+        record["name"] = translator.name
+        record["email"] = translator.email
+        record["phone"] = translator.phone
+        record["direction"] = translator.direction
+        record["reg_date"] = translator.reg_date
+        record["busy"] = translator.busy
+        translators_list.append(record.copy())
+        record.clear()
+    translator_dict["translators"] = translators_list
+    return JsonResponse(translator_dict)
+
+
+def get_all_customers(request):
+    if "mid" not in request.GET or "token" not in request.GET:
+        return JsonResponse({"response": "error_f"})
+    try:
+        manager = ManagerAuth.objects.get(m_id=request.GET["mid"])
+    except ManagerAuth.DoesNotExist:
+        return JsonResponse({"response": "denied"})
+    if manager.token != request.GET['token']:
+        return JsonResponse({"response": "denied"})
+    try:
+        customers = Client.objects.all()
+    except Client.DoesNotExist:
+        return JsonResponse({"response": "havent"})
+    customer_dict = dict()
+    customer_dict["response"] = "ok"
+    customer_dict["count"] = customers.count()
+    customer_list = []
+    for customer in customers:
+        record = dict()
+        record["tid"] = customer.c_id
+        record["surname"] = customer.surname
+        record["name"] = customer.name
+        record["email"] = customer.email
+        record["phone"] = customer.phone
+        record["reg_date"] = customer.reg_date
+        record["refused_orders"] = customer.refused_orders
+        record["completed_orders"] = customer.completed_orders
+        record["rating"] = customer.rating
+        customer_list.append(record.copy())
+        record.clear()
+    customer_dict["customers"] = customer_list
+    return JsonResponse(customer_dict)
