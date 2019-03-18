@@ -230,6 +230,8 @@ def finish_order(request):
         return JsonResponse({"response": "no_order"})
     except Client.DoesNotExist:
         return JsonResponse({"response": "no_client"})
+    if int(order.status) >= 6:
+        return JsonResponse({"response": "order_finished"})
     files = request.FILES.getlist('files', [])
     cnt = 0
     for f in files:
