@@ -237,7 +237,6 @@ def finish_order(request):
         return JsonResponse({"response": "no_client"})
     if int(order.status) >= 6:
         return JsonResponse({"response": "order_finished"})
-<<<<<<< HEAD
     files = request.FILES.getlist('files', [])
     cnt = 0
     for f in files:
@@ -250,18 +249,16 @@ def finish_order(request):
     if arch_name == 'error':
         return JsonResponse({"response": "error_a", "id": order.o_id})
     order.translated_arch_path = arch_name
-=======
     new_file = TranslateResult()
     new_file.o_id = order.o_id
     new_file.ord_file = request.FILES.get('file')
     the_file = new_file.ord_file
     new_file.save()
     order.translated_arch_path = the_file
->>>>>>> b73f5cffaf63986c7b3587bb7eb78359f049b28a
     msg_text = """
         Здравстуйте!
         Ваш заказ №: {0} готов.
-        Перевод находится во вложении.    
+        Перевод находится во вложении.
     """.format(order.o_id)
     if send_arch_to_email(client.email, "Ваш заказ № " + order.o_id + " готов", msg_text, the_file.url):
         order.status = "6"
