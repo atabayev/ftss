@@ -47,7 +47,7 @@ def new(request):
     translator_auth.username = request.POST["username"].lower()
     translator_auth.password = hash_pswd
     translator_auth.save()
-    return JsonResponse({"response": "OK", "id": translator.t_id})
+    return JsonResponse({"response": "ok", "id": translator.t_id})
 
 
 def authentication(request):
