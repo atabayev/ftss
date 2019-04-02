@@ -11,6 +11,7 @@ class Translator(models.Model):
     reg_date = models.CharField(max_length=20)
     busy = models.CharField(max_length=5, default='0')
     direction = models.CharField(max_length=50, default='')
+    languages = models.CharField(max_length=200, default='')
     # orders = models.ManyToManyField(Order)
 
 

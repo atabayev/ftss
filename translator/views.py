@@ -20,7 +20,7 @@ def new(request):
     if "name" not in request.POST or "surname" not in request.POST or "email" not in request.POST \
             or "phone" not in request.POST or "direction" not in request.POST \
             or "username" not in request.POST or "password" not in request.POST\
-            or "mid" not in request.POST or "token" not in request.POST:
+            or "mid" not in request.POST or "token" not in request.POST or 'languages' not in request.POST:
         return JsonResponse({"response": "f_error", "id": ""})
     try:
         manager = ManagerAuth.objects.get(m_id=request.POST["mid"])
@@ -36,6 +36,7 @@ def new(request):
     translator.email = request.POST['email']
     translator.phone = request.POST['phone']
     translator.direction = request.POST['direction']
+    translator.languages = request.POST['languages']
     tmp_id = '{0}{1}{2}'.format(translator.surname[0], translator.name[0], translator.phone)
     translator.t_id = converter_ru_to_lt(tmp_id)
     translator.reg_date = datetime.date.today().strftime("%d.%m.%Y")

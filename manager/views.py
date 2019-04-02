@@ -98,6 +98,7 @@ def get_all_orders(request):
                   "customer_id": order.customer_id,
                   "translator_id": translators_text,
                   "status": order.status,
+                  "rating": order.translate_rating,
                   "file_count": order.file_count}
         orders_records.append(record)
     orders_dict["orders"] = orders_records
@@ -237,18 +238,6 @@ def finish_order(request):
         return JsonResponse({"response": "no_client"})
     if int(order.status) >= 6:
         return JsonResponse({"response": "order_finished"})
-    files = request.FILES.getlist('files', [])
-    cnt = 0
-    for f in files:
-        new_file = TranslateResult()
-        new_file.o_id = order.o_id
-        new_file.ord_file = f
-        new_file.save()
-        cnt += 1
-    arch_name = create_archive_file(order.o_id, "result")
-    if arch_name == 'error':
-        return JsonResponse({"response": "error_a", "id": order.o_id})
-    order.translated_arch_path = arch_name
     new_file = TranslateResult()
     new_file.o_id = order.o_id
     new_file.ord_file = request.FILES.get('file')
