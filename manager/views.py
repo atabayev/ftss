@@ -149,7 +149,8 @@ def authentication(request):
 
 
 def get_ready_translators(request):
-    if "mid" not in request.POST or "token" not in request.POST or "direction" not in request.POST:
+    if "mid" not in request.POST or "token" not in request.POST or "direction" not in request.POST \
+            or "languages" not in request.POST:
         return JsonResponse({"response": "error_f"})
     try:
         manager = ManagerAuth.objects.get(m_id=request.POST["mid"])
@@ -162,12 +163,20 @@ def get_ready_translators(request):
     except Translator.DoesNotExist:
         return JsonResponse({"response": "not_free"})
     request_direction = request.POST["direction"].replace(" ", "").split(",")
+    lang_from = [request.POST['languages'].split('-')[0]]
+    lang_to = [request.POST['languages'].split('-')[1]]
     order_dict = dict()
     order_dict["response"] = "ok"
     translators_list = []
     for translator in translators:
         translator_direction = translator.direction.replace(" ", "").split(",")
-        if len(list(set(request_direction) & set(translator_direction))) > 0:
+        translator_languages = translator.languages.replace(" ", "").split(",")
+        len1 = len(list(set(request_direction) & set(translator_direction)))
+        len2 = len(list(set(lang_from) & set(translator_languages)))
+        len3 = len(list(set(lang_to) & set(translator_languages)))
+        if len(list(set(request_direction) & set(translator_direction))) > 0 and \
+                len(list(set(lang_from) & set(translator_languages))) > 0 and \
+                len(list(set(lang_to) & set(translator_languages))) > 0:
             record = dict()
             record["tid"] = translator.t_id
             record["surname"] = translator.surname
@@ -175,6 +184,7 @@ def get_ready_translators(request):
             record["email"] = translator.email
             record["phone"] = translator.phone
             record["direction"] = translator.direction
+            record["languages"] = translator.languages
             translators_list.append(record.copy())
             record.clear()
     order_dict["translators"] = translators_list
@@ -289,9 +299,10 @@ def get_all_translator(request):
         record["tid"] = translator.t_id
         record["surname"] = translator.surname
         record["name"] = translator.name
+        record["languages"] = translator.languages
+        record["direction"] = translator.direction
         record["email"] = translator.email
         record["phone"] = translator.phone
-        record["direction"] = translator.direction
         record["reg_date"] = translator.reg_date
         record["busy"] = translator.busy
         translators_list.append(record.copy())

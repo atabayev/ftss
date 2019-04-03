@@ -10,7 +10,7 @@ class Translator(models.Model):
     phone = models.CharField(max_length=15)
     reg_date = models.CharField(max_length=20)
     busy = models.CharField(max_length=5, default='0')
-    direction = models.CharField(max_length=50, default='')
+    direction = models.CharField(max_length=100, default='')
     languages = models.CharField(max_length=200, default='')
     # orders = models.ManyToManyField(Order)
 
