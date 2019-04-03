@@ -171,9 +171,6 @@ def get_ready_translators(request):
     for translator in translators:
         translator_direction = translator.direction.replace(" ", "").split(",")
         translator_languages = translator.languages.replace(" ", "").split(",")
-        len1 = len(list(set(request_direction) & set(translator_direction)))
-        len2 = len(list(set(lang_from) & set(translator_languages)))
-        len3 = len(list(set(lang_to) & set(translator_languages)))
         if len(list(set(request_direction) & set(translator_direction))) > 0 and \
                 len(list(set(lang_from) & set(translator_languages))) > 0 and \
                 len(list(set(lang_to) & set(translator_languages))) > 0:
