@@ -21,7 +21,9 @@ from .utils.Utils import send_push_notification
 
 def add_translator_to_order(request):
     if 'tid' not in request.POST or 'oid' not in request.POST or "token" not in request.POST \
-            or "date_end" not in request.POST or "price" not in request.POST or "direction" not in request.POST:
+            or "date_end" not in request.POST or "price_to_client" not in request.POST \
+            or "price_to_translator" not in request.POST or "direction" not in request.POST\
+            or "lang_from" not in request.POST or "pages_count" not in request.POST:
         return JsonResponse({"response": "field_error"})
     try:
         ManagerAuth.objects.get(token=request.POST["token"])
@@ -47,9 +49,12 @@ def add_translator_to_order(request):
     except Client.DoesNotExist:
         return JsonResponse({"response": "error_unknown_client", "translators": ""})
     order.date_end = request.POST["date_end"]
-    order.price = request.POST["price"]
+    order.price_to_client = request.POST["price_to_client"]
+    order.price_to_translator = request.POST["price_to_translator"]
     order.direction = request.POST["direction"]
     order.status = "2"
+    order.lang_from = request.POST["lang_from"]
+    order.pages = request.POST["pages_count"]
     order.save()
     client.order_status = "2"
     client.save()
@@ -88,11 +93,14 @@ def get_all_orders(request):
         for translator in translators:
             translators_text += translator.surname + " " + translator.name + "; "
         record = {"o_id": order.o_id,
-                  "lang": order.lang,
+                  "lang_from": order.lang_from,
+                  "lang_to": order.lang_to,
+                  "comment": order.comment,
                   "pages": order.pages,
                   "date_start": order.date_start,
                   "date_end": order.date_end,
-                  "price": order.price,
+                  "price_to_client": order.price_to_client,
+                  "price_to_translator": order.price_to_translator,
                   "direction": order.direction,
                   "urgency": order.urgency,
                   "customer_id": order.customer_id,
@@ -201,7 +209,7 @@ def get_orders_file_name(request):
         order = Order.objects.get(o_id=request.GET.get("oid"))
     except Order.DoesNotExist:
         return JsonResponse({"response": "no_order"})
-    return JsonResponse({"response": "ok", "file_name": order.arch_path})
+    return JsonResponse({"response": "ok", "file_name": os.path.basename(order.arch_path)})
 
 
 def get_orders_file(request):
@@ -340,3 +348,32 @@ def get_all_customers(request):
         record.clear()
     customer_dict["customers"] = customer_list
     return JsonResponse(customer_dict)
+
+
+def add_new_translators(request):
+    if "token" not in request.POST or "oid" not in request.POST or "tid" not in request.POST:
+        return JsonResponse({"response": "error_f"})
+    try:
+        order = Order.objects.get(o_id=request.POST['oid'])
+    except Order.DoesNotExist:
+        return JsonResponse({"response": "error_no_order"})
+
+    translators = request.POST["tid"].split(',')
+    unknown_translator = []
+    right_translators = []
+    for tr in translators:
+        try:
+            order.translators.add(Translator.objects.get(t_id=tr.replace(" ", "")))
+            right_translators.append(tr)
+        except Translator.DoesNotExist:
+            unknown_translator.append(tr.replace(" ", ""))
+    if len(translators) == len(unknown_translator):
+        return JsonResponse({"response": "error_unknown_translators", "translators": unknown_translator})
+    order.status = "3"
+    order.save()
+    translators = order.translators.all()
+    translators_fcm_token = []
+    for translator in translators:
+        translators_fcm_token.append(TranslatorAuth.objects.get(t_id=translator.t_id).fcm_token)
+    send_push_notification("Новый заказ", "Поступил новый заказ: " + order.o_id, translators_fcm_token)
+    return JsonResponse({"response": "ok"})

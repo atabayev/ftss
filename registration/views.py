@@ -128,7 +128,6 @@ def get_info_about_order(request):
     if "cid" not in request.POST or "token" not in request.POST or "oid" not in request.POST:
         return JsonResponse({"response": "error_f", "orderId": "", "language": "", "pagesCount": "", "price": "",
                              "dateEnd": "", "urgency": "", })
-
     try:
         client_id = Client.objects.get(c_id=request.POST["cid"]).c_id
         if ClientAuth.objects.get(c_id=client_id).token != request.POST["token"]:
@@ -145,8 +144,8 @@ def get_info_about_order(request):
         return JsonResponse({"response": "error_o", "orderId": "", "language": "", "pagesCount": "", "price": "",
                              "dateEnd": "", "urgency": ""})
     if order.status == "2":
-        return JsonResponse({"response": "ready", "orderId": order.o_id, "language": order.lang,
-                             "pagesCount": order.pages, "price": order.price, "dateEnd": order.date_end,
+        return JsonResponse({"response": "ready", "orderId": order.o_id, "language": order.lang_from+'-'+order.lang_to,
+                             "pagesCount": order.pages, "price": order.price_to_client, "dateEnd": order.date_end,
                              "urgency": order.urgency})
     else:
         return JsonResponse({"response": "no", "orderId": "", "language": "", "pagesCount": "", "price": "",

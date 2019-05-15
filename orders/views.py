@@ -15,7 +15,7 @@ def index(request):
 
 # new
 def new(request):
-    if "language" not in request.POST or "pages" not in request.POST or "cid" not in request.POST \
+    if "language" not in request.POST or "comment" not in request.POST or "cid" not in request.POST \
             or "urgency" not in request.POST or "token" not in request.POST:
         return JsonResponse({"response": "error_f", "id": ""})
     try:
@@ -31,8 +31,8 @@ def new(request):
     order = Order()
     oid = generate_id()
     order.o_id = oid
-    order.lang = request.POST['language']
-    order.pages = request.POST['pages']
+    order.lang_to = request.POST['language']
+    order.comment = request.POST['comment']
     order.urgency = request.POST['urgency']
     order.customer_id = client.c_id
     order.date_start = datetime.date.today().strftime("%d.%m.%Y")

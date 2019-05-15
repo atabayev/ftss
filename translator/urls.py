@@ -13,4 +13,5 @@ urlpatterns = [
     path('take_order/', views.take_an_order, name='take_an_order'),
     path('complete_order/', views.complete_order, name='complete_order'),
     path('set_fcm_token/', views.save_fcm_token, name='save_fcm_token'),
+    path('cancel_order/', views.cancel_order, name='cancel_order'),
 ]

@@ -5,11 +5,14 @@ from translator.models import Translator
 
 class Order(models.Model):
     o_id = models.CharField(max_length=15, unique=True)
-    lang = models.CharField(max_length=50)
+    lang_from = models.CharField(max_length=50, default='')
+    lang_to = models.CharField(max_length=50, default='')
+    comment = models.CharField(max_length=255, default='')
     pages = models.CharField(max_length=10)
     date_start = models.CharField(max_length=20)
     date_end = models.CharField(max_length=20)
-    price = models.CharField(max_length=15)
+    price_to_client = models.CharField(max_length=15)
+    price_to_translator = models.CharField(max_length=15)
     direction = models.CharField(max_length=20)
     urgency = models.CharField(max_length=10, default="2")
     customer_id = models.CharField(max_length=15)

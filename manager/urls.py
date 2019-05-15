@@ -15,4 +15,5 @@ urlpatterns = [
     path('finish_o/', views.finish_order, name='finish_order'),
     path('get_all_translators/', views.get_all_translator, name='get_all_translators'),
     path('get_all_customers/', views.get_all_customers, name='get_all_customers'),
+    path('add_new_translators/', views.add_new_translators, name='add_new_translators'),
 ]

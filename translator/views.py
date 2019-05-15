@@ -19,7 +19,7 @@ def index(request):
 def new(request):
     if "name" not in request.POST or "surname" not in request.POST or "email" not in request.POST \
             or "phone" not in request.POST or "direction" not in request.POST \
-            or "username" not in request.POST or "password" not in request.POST\
+            or "username" not in request.POST or "password" not in request.POST \
             or "mid" not in request.POST or "token" not in request.POST or 'languages' not in request.POST:
         return JsonResponse({"response": "f_error", "id": ""})
     try:
@@ -134,10 +134,10 @@ def get_orders(request):
     for translators_orders in orders:
         order_id = translators_orders.o_id
         order_date_end = translators_orders.date_end
-        order_lang = translators_orders.lang
+        order_lang = translators_orders.lang_from + '-' + translators_orders.lang_to
         order_direction = translators_orders.direction
         order_pages = translators_orders.pages
-        order_price = translators_orders.price
+        order_price = translators_orders.price_to_translator
         record = {"id": order_id, "deadline": order_date_end, "language": order_lang,
                   "direction": order_direction, "pageCount": order_pages, "price": order_price}
         orders_records.append(record)
@@ -171,10 +171,10 @@ def get_my_orders(request):
     for translators_orders in orders:
         order_id = translators_orders.o_id
         order_date_end = translators_orders.date_end
-        order_lang = translators_orders.lang
+        order_lang = translators_orders.lang_from + '->' + translators_orders.lang_to
         order_direction = translators_orders.direction
         order_pages = translators_orders.pages
-        order_price = translators_orders.price
+        order_price = translators_orders.price_to_translator
         order_status = translators_orders.status
         record = {"id": order_id, "deadline": order_date_end, "language": order_lang,
                   "direction": order_direction, "pageCount": order_pages, "price": order_price, "status": order_status}
@@ -240,3 +240,25 @@ def save_fcm_token(request):
     translator_auth.fcm_token = request.POST["fcm_token"]
     translator_auth.save()
     return JsonResponse({"response": "ok"})
+
+
+def cancel_order(request):
+    if "tid" not in request.POST or "token" not in request.POST or "oid" not in request.POST:
+        return JsonResponse({"response": "error_f"})
+    try:
+        translator_auth = TranslatorAuth.objects.get(t_id=request.POST["tid"])
+    except Client.DoesNotExist:
+        return JsonResponse({"response": "denied"})
+    if translator_auth.token != request.POST["token"]:
+        return JsonResponse({"response": "denied"})
+    try:
+        order = Order.objects.get(o_id=request.POST['oid'])
+    except Order.DoesNotExist:
+        return JsonResponse({"response": "order_not_exists"})
+    trans = Translator.objects.get(t_id=request.POST["tid"])
+    order.translators.remove(trans)
+    order.save()
+    if order.translators.count() == 0:
+        order.status = '9'
+        order.save()
+    return JsonResponse({'response': 'ca_ok'})
