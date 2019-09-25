@@ -116,9 +116,9 @@ def get_all_orders(request):
 def new_manager(request):
     if request.method.upper() != "POST":
         return JsonResponse({"response": "m_error", "id": ""})
-    if "password" not in request.POST or "name" not in request.POST or "surname" not in request.POST \
-            or "email" not in request.POST or "phone" not in request.POST or "pswd" not in request.POST \
-            or "username" not in request.POST or "username" not in request.POST:
+    if "username" not in request.POST or "password" not in request.POST or "name" not in request.POST \
+            or "surname" not in request.POST or "email" not in request.POST or "phone" not in request.POST \
+            or "pswd" not in request.POST:
         return JsonResponse({"response": "f_error", "id": ""})
     if request.POST["pswd"] != 'for_add':
         return JsonResponse({"response": "p_error", "id": ""})
@@ -132,11 +132,11 @@ def new_manager(request):
     mid = manager.m_id = converter_ru_to_lt(tmp_id)
     manager.save()
     hash_psw = hashlib.md5(request.POST['password'].encode('utf-8')).hexdigest()
-    managerAuth = ManagerAuth()
-    managerAuth.m_id = mid
-    managerAuth.username = request.POST["username"].lower()
-    managerAuth.password = hash_psw
-    managerAuth.save()
+    manager_auth = ManagerAuth()
+    manager_auth.m_id = mid
+    manager_auth.username = request.POST["username"].lower()
+    manager_auth.password = hash_psw
+    manager_auth.save()
     return JsonResponse({"response": "OK", "id": mid})
 
 
