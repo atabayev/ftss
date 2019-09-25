@@ -1,4 +1,4 @@
-from django.http import JsonRespone
+from django.http import JsonResponse
 from registration.models import ClientAuth
 
 # Create your views here.
