@@ -81,7 +81,8 @@ def authentication(request):
         order = Order.objects.exclude(status="0").exclude(status="7").get(customer_id=client.c_id)
     except:
         return JsonResponse({"response": "access", "id": client.c_id, "token": new_token, "status": "0", "oid": "0"})
-    return JsonResponse({"response": "access", "id": client.c_id, "token": new_token, "status": order.status})
+    return JsonResponse({"response": "access", "id": client.c_id, "token": new_token, "status": order.status,
+                         "oid": order.o_id})
 
 
 def delete(request, cl_id):
