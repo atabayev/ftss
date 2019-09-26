@@ -1,10 +1,9 @@
 import requests
 from requests.auth import HTTPBasicAuth
 from django.http import JsonResponse
-from registration.models import ClientAuth
+from registration.models import ClientAuth, Client
 
 # Create your views here.
-
 
 pkey = "pk_aac81032584d2d7c9ebc09c85591b"
 pswd = "28e2a76f04e607634b64e45431d4b0d0"
@@ -12,10 +11,16 @@ pswd = "28e2a76f04e607634b64e45431d4b0d0"
 
 
 def paying(request):
+
     if "amount" not in request.POST or "currency" not in request.POST or "ipAddress" not in request.POST \
             or "name" not in request.POST or "cardCryptogramPacket" not in request.POST or "accountId" not in request.POST\
             or "invoiceId" not in request.POST or "email" not in request.POST:
         return JsonResponse({"response": "field_error"})
+    try:
+        if ClientAuth.objects.get(c_id=request.POST.get("accountId")).token != request.POST["token"]:
+            return JsonResponse({"response": "denied"})
+    except ClientAuth.DoesNotExist:
+        return JsonResponse({"response": "denied"})
     data = {
         "Amount": request.POST.get("amount"),
         "Currency": request.POST.get("currency"),
@@ -51,5 +56,3 @@ def paying(request):
     if cloud_payments_resp["Success"] is False and cloud_payments_resp["Message"] is not None:
         return JsonResponse({"response": "pay_error", "message": cloud_payments_resp["Message"]})
     return JsonResponse({"response": "unknown_error"})
-
-

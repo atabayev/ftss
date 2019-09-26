@@ -80,8 +80,13 @@ def authentication(request):
     try:
         order = Order.objects.exclude(status="0").exclude(status="7").get(customer_id=client.c_id)
     except:
+<<<<<<< HEAD
         return JsonResponse({"response": "access", "cid": client.c_id, "token": new_token, "status": "0", "oid": ""})
     return JsonResponse({"response": "access", "cid": client.c_id, "token": new_token, "status": order.status, "oid": order.o_id})
+=======
+        return JsonResponse({"response": "access", "id": client.c_id, "token": new_token, "status": "0", "oid": "0"})
+    return JsonResponse({"response": "access", "id": client.c_id, "token": new_token, "status": order.status})
+>>>>>>> 66c64109b7e204a1e8ab12d3423e2a0450c9bc8f
 
 
 def delete(request, cl_id):
@@ -129,8 +134,7 @@ def get_info_about_order(request):
         return JsonResponse({"response": "error_f", "orderId": "", "language": "", "pagesCount": "", "price": "",
                              "dateEnd": "", "urgency": "", })
     try:
-        client_id = Client.objects.get(c_id=request.POST["cid"]).c_id
-        if ClientAuth.objects.get(c_id=client_id).token != request.POST["token"]:
+        if ClientAuth.objects.get(c_id=request.POST["cid"]).token != request.POST["token"]:
             return JsonResponse({"response": "denied", "orderId": "", "language": "", "pagesCount": "", "price": "",
                                  "dateEnd": "", "urgency": ""})
         order = Order.objects.get(o_id=request.POST["oid"])
