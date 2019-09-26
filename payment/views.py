@@ -1,7 +1,8 @@
 import requests
+from django.shortcuts import render
 from requests.auth import HTTPBasicAuth
 from django.http import JsonResponse
-from registration.models import ClientAuth, Client
+from registration.models import ClientAuth
 
 # Create your views here.
 
@@ -50,4 +51,30 @@ def paying(request):
         # если некоректно сформирован запрос
     if cloud_payments_resp["Success"] is False and cloud_payments_resp["Message"] is not None:
         return JsonResponse({"response": "pay_error", "message": cloud_payments_resp["Message"]})
+    return JsonResponse({"response": "unknown_error"})
+
+
+def term_url(request):
+    md = request.POST.get("MD")
+    pa_res = request.POST.get("PaRes")
+    url = "https://api.cloudpayments.ru/payments/cards/post3ds"
+    data = {
+        "TransactionId": md,
+        "PaRes": pa_res
+    }
+    r = requests.post(url, data, auth=HTTPBasicAuth(pkey, pswd))
+    if r.status_code != 200:
+        return render(request, "payment/pay_result.html", {"status_code": r.status_code, "isSuccess": ""})
+    cloud_payments_resp = r.json()
+    # если успешно прошёл платёж
+    if cloud_payments_resp["Success"] is True:
+        return render(request, "payment/pay_result.html", {"status_code": r.status_code, "isSuccess": "ПРОШЛА УСПЕШНО"})
+    # ели транзакция отклонена
+    if cloud_payments_resp["Success"] is False \
+            and cloud_payments_resp["Message"] is None \
+            and "ReasonCode" in cloud_payments_resp["Model"]:
+        return render(request, "payment/pay_result.html", {"status_code": r.status_code, "isSuccess": "ОТКЛОНЕНА"})
+    # если некоректно сформирован запрос
+    if cloud_payments_resp["Success"] is False and cloud_payments_resp["Message"] is not None:
+        return render(request, "payment/pay_result.html", {"status_code": r.status_code, "isSuccess": "НЕКОРЕКТНА"})
     return JsonResponse({"response": "unknown_error"})
