@@ -44,12 +44,9 @@ def paying(request):
             return JsonResponse({"response": "declined", "reasonCode": cloud_payments_resp["Model"]["ReasonCode"]})
         # если требует 3DS
         else:
-            model = {
-                "MD": cloud_payments_resp["Model"]["TransactionId"],
-                "PaReq": cloud_payments_resp["Model"]["PaReq"],
-                "AcsUrl": cloud_payments_resp["Model"]["AcsUrl"]
-            }
-            return JsonResponse({"response": "3ds", "model": model})
+            return JsonResponse({"response": "3ds", "md": cloud_payments_resp["Model"]["TransactionId"],
+                                 "paReq": cloud_payments_resp["Model"]["PaReq"],
+                                 "acsUrl": cloud_payments_resp["Model"]["AcsUrl"]})
         # если некоректно сформирован запрос
     if cloud_payments_resp["Success"] is False and cloud_payments_resp["Message"] is not None:
         return JsonResponse({"response": "pay_error", "message": cloud_payments_resp["Message"]})
