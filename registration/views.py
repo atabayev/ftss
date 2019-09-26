@@ -36,10 +36,6 @@ def registration_new_user(request):
     if 'name' in request.POST and 'surname' in request.POST and 'email' in request.POST and 'phone' in request.POST:
         ph = request.POST['phone']
         phone_number = ph[len(ph)-10:]
-        # if phone_number[0] == "+":
-        #     client.phone = phone_number[1:]git commi
-        # else:
-        #     client.phone = phone_number
         if Client.objects.filter(phone=phone_number).exists():
             return JsonResponse({"response": "record_ex", "id": ""})
         client = Client()
@@ -79,9 +75,9 @@ def authentication(request):
     client_auth.save()
     try:
         order = Order.objects.exclude(status="0").exclude(status="7").get(customer_id=client.c_id)
-    except:
-        return JsonResponse({"response": "access", "id": client.c_id, "token": new_token, "status": "0", "oid": "0"})
-    return JsonResponse({"response": "access", "id": client.c_id, "token": new_token, "status": order.status,
+    except Order.DoesNotExist:
+        return JsonResponse({"response": "access", "cid": client.c_id, "token": new_token, "status": "0", "oid": "0"})
+    return JsonResponse({"response": "access", "cid": client.c_id, "token": new_token, "status": order.status,
                          "oid": order.o_id})
 
 
