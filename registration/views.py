@@ -61,29 +61,23 @@ def registration_new_user(request):
 # Authentication
 def authentication(request):
     if "phone" not in request.POST:
-        return JsonResponse({"response": "error_f", "cid": "", "status": "", "oid": ""})
+        return JsonResponse({"response": "error_f", "id": "", "status": "", "oid": ""})
     try:
         client = Client.objects.get(phone=request.POST['phone'])
     except Client.DoesNotExist as Exc:
-        return JsonResponse({"response": "denied", "cid": "", "status": "", "oid": ""})
+        return JsonResponse({"response": "denied", "id": "", "status": "", "oid": ""})
     try:
         client_auth = ClientAuth.objects.get(c_id=client.c_id)
     except ClientAuth.DoesNotExist:
-        return JsonResponse({"response": "denied", "cid": client.c_id, "token": "", "status": "", "oid": ""})
+        return JsonResponse({"response": "denied", "id": client.c_id, "token": "", "status": "", "oid": ""})
     new_token = generate_token()
     client_auth.token = new_token
     client_auth.save()
     try:
         order = Order.objects.exclude(status="0").exclude(status="7").get(customer_id=client.c_id)
-<<<<<<< HEAD
-    except:
-        return JsonResponse({"response": "access", "cid": client.c_id, "token": new_token, "status": "0", "oid": ""})
-    return JsonResponse({"response": "access", "cid": client.c_id, "token": new_token, "status": order.status, "oid": order.o_id})
-        return JsonResponse({"response": "access", "id": client.c_id, "token": new_token, "status": "0", "oid": "0"})
+    except Order.DoesNotExists:
+        return JsonResponse({"response": "access", "id": client.c_id, "token": new_token, "status": "0", "oid": ""})
     return JsonResponse({"response": "access", "id": client.c_id, "token": new_token, "status": order.status,
-    except Order.DoesNotExist:
-        return JsonResponse({"response": "access", "cid": client.c_id, "token": new_token, "status": "0", "oid": "0"})
-    return JsonResponse({"response": "access", "cid": client.c_id, "token": new_token, "status": order.status,
                          "oid": order.o_id})
 
 
