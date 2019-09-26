@@ -11,7 +11,6 @@ pswd = "28e2a76f04e607634b64e45431d4b0d0"
 
 
 def paying(request):
-
     if "amount" not in request.POST or "currency" not in request.POST or "ipAddress" not in request.POST \
             or "name" not in request.POST or "cardCryptogramPacket" not in request.POST or "accountId" not in request.POST\
             or "invoiceId" not in request.POST or "email" not in request.POST:
