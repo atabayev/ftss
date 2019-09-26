@@ -65,23 +65,23 @@ def registration_new_user(request):
 # Authentication
 def authentication(request):
     if "phone" not in request.POST:
-        return JsonResponse({"response": "error_f", "id": "", "status": ""})
+        return JsonResponse({"response": "error_f", "cid": "", "status": "", "oid": ""})
     try:
         client = Client.objects.get(phone=request.POST['phone'])
     except Client.DoesNotExist as Exc:
-        return JsonResponse({"response": "denied", "id": "", "status": ""})
+        return JsonResponse({"response": "denied", "cid": "", "status": "", "oid": ""})
     try:
         client_auth = ClientAuth.objects.get(c_id=client.c_id)
     except ClientAuth.DoesNotExist:
-        return JsonResponse({"response": "denied", "id": client.c_id, "token": "", "status": ""})
+        return JsonResponse({"response": "denied", "cid": client.c_id, "token": "", "status": "", "oid": ""})
     new_token = generate_token()
     client_auth.token = new_token
     client_auth.save()
     try:
         order = Order.objects.exclude(status="0").exclude(status="7").get(customer_id=client.c_id)
     except:
-        return JsonResponse({"response": "access", "id": client.c_id, "token": new_token, "status": "0"})
-    return JsonResponse({"response": "access", "id": client.c_id, "token": new_token, "status": order.status})
+        return JsonResponse({"response": "access", "cid": client.c_id, "token": new_token, "status": "0", "oid": ""})
+    return JsonResponse({"response": "access", "cid": client.c_id, "token": new_token, "status": order.status, "oid": order.o_id})
 
 
 def delete(request, cl_id):
