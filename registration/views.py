@@ -139,7 +139,7 @@ def get_info_about_order(request):
     except Order.DoesNotExist:
         return JsonResponse({"response": "error_o", "orderId": "", "language": "", "pagesCount": "", "price": "",
                              "dateEnd": "", "urgency": ""})
-    if order.status == "2":
+    if order.status == "2" or order.status == "3":
         return JsonResponse({"response": "ready", "orderId": order.o_id, "language": order.lang_from+'-'+order.lang_to,
                              "pagesCount": order.pages, "price": order.price_to_client, "dateEnd": order.date_end,
                              "urgency": order.urgency})
