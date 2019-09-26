@@ -83,7 +83,8 @@ def authentication(request):
         return JsonResponse({"response": "access", "cid": client.c_id, "token": new_token, "status": "0", "oid": ""})
     return JsonResponse({"response": "access", "cid": client.c_id, "token": new_token, "status": order.status, "oid": order.o_id})
         return JsonResponse({"response": "access", "id": client.c_id, "token": new_token, "status": "0", "oid": "0"})
-    return JsonResponse({"response": "access", "id": client.c_id, "token": new_token, "status": order.status})
+    return JsonResponse({"response": "access", "id": client.c_id, "token": new_token, "status": order.status,
+                         "oid": order.o_id})
 
 
 def delete(request, cl_id):
