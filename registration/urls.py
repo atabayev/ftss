@@ -16,4 +16,5 @@ urlpatterns = [
     path('dyftfo/', views.do_you_find_translator_for_order, name='do_you_find_translator_for_order'),
     path('dytmo/', views.do_you_translate_my_order, name='do_you_translate_my_order'),
     path('finish_o/', views.finish_order, name='finish_order'),
+    path('pay_phys/', views.need_pay_by_physical, name='need_pay_by_physical'),
 ]

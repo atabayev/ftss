@@ -35,7 +35,7 @@ def get_sms_for_authentication(request):
 def registration_new_user(request):
     if 'name' in request.POST and 'surname' in request.POST and 'email' in request.POST and 'phone' in request.POST:
         ph = request.POST['phone']
-        phone_number = ph[len(ph)-10:]
+        phone_number = ph[len(ph) - 10:]
         if Client.objects.filter(phone=phone_number).exists():
             return JsonResponse({"response": "record_ex", "id": ""})
         client = Client()
@@ -75,7 +75,7 @@ def authentication(request):
     client_auth.save()
     try:
         order = Order.objects.exclude(status="0").exclude(status="7").get(customer_id=client.c_id)
-    except Order.DoesNotExists:
+    except Order.DoesNotExist:
         return JsonResponse({"response": "access", "id": client.c_id, "token": new_token, "status": "0", "oid": ""})
     return JsonResponse({"response": "access", "id": client.c_id, "token": new_token, "status": order.status,
                          "oid": order.o_id})
@@ -140,9 +140,10 @@ def get_info_about_order(request):
         return JsonResponse({"response": "error_o", "orderId": "", "language": "", "pagesCount": "", "price": "",
                              "dateEnd": "", "urgency": ""})
     if order.status == "2" or order.status == "3":
-        return JsonResponse({"response": "ready", "orderId": order.o_id, "language": order.lang_from+'-'+order.lang_to,
-                             "pagesCount": order.pages, "price": order.price_to_client, "dateEnd": order.date_end,
-                             "urgency": order.urgency})
+        return JsonResponse(
+            {"response": "ready", "orderId": order.o_id, "language": order.lang_from + '-' + order.lang_to,
+             "pagesCount": order.pages, "price": order.price_to_client, "dateEnd": order.date_end,
+             "urgency": order.urgency})
     else:
         return JsonResponse({"response": "no", "orderId": "", "language": "", "pagesCount": "", "price": "",
                              "dateEnd": "", "urgency": ""})
@@ -160,8 +161,11 @@ def make_an_order(request):
         return JsonResponse({"response": "denied"})
     except Order.DoesNotExist:
         return JsonResponse({"response": "error_no_order"})
+    try:
+        client = Client.objects.get(c_id=request.POST["cid"])
+    except Client.DoesNotExist:
+        return JsonResponse({"response": "denied"})
     order.status = "3"
-    client = Client.objects.get(c_id=request.POST["cid"])
     client.order_status = "3"
     client.save()
     translators = order.translators.all()
@@ -171,6 +175,31 @@ def make_an_order(request):
         translators_fcm_token.append(TranslatorAuth.objects.get(t_id=translator.t_id).fcm_token)
     send_push_notification("Новый заказ", "Поступил новый заказ: " + order.o_id, translators_fcm_token)
     return JsonResponse({"response": "ok"})
+
+
+def need_pay_by_physical(request):
+    if "cid" not in request.POST or "token" not in request.POST or "oid" not in request.POST:
+        return JsonResponse({"response": "error_f"})
+    try:
+        if ClientAuth.objects.get(c_id=request.POST["cid"]).token == request.POST["token"]:
+            order = Order.objects.get(o_id=request.POST["oid"])
+        else:
+            return JsonResponse({"response": "denied"})
+    except ClientAuth.DoesNotExist:
+        return JsonResponse({"response": "denied"})
+    except Order.DoesNotExist:
+        return JsonResponse({"response": "error_no_order"})
+    try:
+        client = Client.objects.get(c_id=request.POST["cid"])
+    except Client.DoesNotExist:
+        return JsonResponse({"response": "denied"})
+    order_deadline = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime('%d.%m.%Y %H:%M')
+    order.status = "25"
+    order.deadline_to_pay = order_deadline
+    client.order_status = "25"
+    client.save()
+    order.save()
+    return JsonResponse({"response": "ok", "status": order_deadline})
 
 
 def cancel_an_order(request):
@@ -243,4 +272,3 @@ def finish_order(request):
     order.translate_rating = request.POST['rating']
     order.save()
     return JsonResponse({"response": "ok"})
-

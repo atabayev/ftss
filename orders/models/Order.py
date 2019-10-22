@@ -23,6 +23,7 @@ class Order(models.Model):
     translated_arch_path = models.CharField(max_length=100, default='')
     translators = models.ManyToManyField(Translator)
     translate_rating = models.CharField(max_length=10, default='')
+    deadline_to_pay = models.CharField(max_length=20, default='')
 
 
 class Files(models.Model):
