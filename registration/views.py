@@ -202,6 +202,31 @@ def need_pay_by_physical(request):
     return JsonResponse({"response": "ok", "status": order_deadline})
 
 
+def need_pay_by_order(request):
+    if "cid" not in request.POST or "token" not in request.POST or "oid" not in request.POST:
+        return JsonResponse({"response": "error_f"})
+    try:
+        if ClientAuth.objects.get(c_id=request.POST["cid"]).token == request.POST["token"]:
+            order = Order.objects.get(o_id=request.POST["oid"])
+        else:
+            return JsonResponse({"response": "denied"})
+    except ClientAuth.DoesNotExist:
+        return JsonResponse({"response": "denied"})
+    except Order.DoesNotExist:
+        return JsonResponse({"response": "error_no_order"})
+    try:
+        client = Client.objects.get(c_id=request.POST["cid"])
+    except Client.DoesNotExist:
+        return JsonResponse({"response": "denied"})
+    order_deadline = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime('%d.%m.%Y %H:%M')
+    order.status = "26"
+    order.deadline_to_pay = order_deadline
+    client.order_status = "26"
+    client.save()
+    order.save()
+    return JsonResponse({"response": "ok", "status": order_deadline})
+
+
 def cancel_an_order(request):
     if "cid" not in request.POST or "token" not in request.POST or "oid" not in request.POST:
         return JsonResponse({"response": "error_f"})
